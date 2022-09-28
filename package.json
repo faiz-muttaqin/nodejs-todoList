@@ -1,0 +1,28 @@
+{
+  "name": "nodejs-todolist",
+  "version": "1.0.0",
+  "description": "membuat todo list dengan NodeJS",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faiz-muttaqin/nodejs-todoList.git"
+  },
+  "author": "Faiz Muttaqin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/faiz-muttaqin/nodejs-todoList/issues"
+  },
+  "homepage": "https://github.com/faiz-muttaqin/nodejs-todoList#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.2",
+    "express": "^4.18.1",
+    "morgan": "^1.10.0",
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.20"
+  }
+}
