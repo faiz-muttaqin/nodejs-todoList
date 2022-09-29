@@ -23,4 +23,5 @@ server.listen(port, () => {
 
 //impor router dari routes
 const routes = require("./server/routes/routes");
+const { resolve } = require("path");
 app.use(routes);

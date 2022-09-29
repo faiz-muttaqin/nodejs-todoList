@@ -2,6 +2,10 @@ const express = require("express");
 const routes = express();
 const userControllers = require("../controllers//userControllers");
 
+routes.get("/", (req, res) => {
+  res.send("Hai, ini API NodeJS dari Faiz Muttaqin");
+});
+
 routes.get("/activity-groups", userControllers.getActivity);
 routes.get("/activity-groups/:id", userControllers.getActivity);
 routes.post("/activity-groups/", userControllers.createActivity);

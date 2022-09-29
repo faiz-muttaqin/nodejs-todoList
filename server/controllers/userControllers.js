@@ -2,7 +2,7 @@ const mysql = require("mysql");
 
 //Connection Pool
 const pool = mysql.createPool({
-  connectionLimit: 100,
+  connectionLimit: 100000,
   host: process.env.MYSQL_HOST,
   user: process.env.MYSQL_USER,
   password: "",
@@ -18,7 +18,7 @@ exports.getActivity = function (req, res) {
       console.log("connected as ID " + connection.threadId);
       //User Connection
       connection.query(
-        `SELECT * FROM activity WHERE id = ?`,
+        `SELECT * FROM activities WHERE id = ?`,
         [id],
         (err, rows) => {
           //When Done with the connection, release it
@@ -50,7 +50,7 @@ exports.getActivity = function (req, res) {
       console.log("connected as ID " + connection.threadId);
       //User Connection
       connection.query(
-        `SELECT * FROM activity WHERE deleted_at IS NULL`,
+        `SELECT * FROM activities WHERE deleted_at IS NULL`,
         (err, rows) => {
           //When Done with the connection, release it
           connection.release();
@@ -80,7 +80,7 @@ exports.createActivity = function (req, res) {
     console.log("connected as ID " + connection.threadId);
     //User Connection
     connection.query(
-      `INSERT INTO activity SET email =?, title = ?, created_at = ?,updated_at = ?`,
+      `INSERT INTO activities SET email =?, title = ?, created_at = ?,updated_at = ?`,
       [email, title, created_at, created_at],
       (err, rows1) => {
         //When Done with the connection, release it
@@ -88,7 +88,7 @@ exports.createActivity = function (req, res) {
 
         if (!err) {
           connection.query(
-            `SELECT * FROM activity WHERE email = ?,title = ?,deleted_at IS NULL`,
+            `SELECT * FROM activities WHERE email = ?,title = ?,deleted_at IS NULL`,
             [email, title],
             (err, rows) => {
               //When Done with the connection, release it
@@ -127,7 +127,7 @@ exports.deleteActivity = function (req, res) {
     console.log("connected as ID " + connection.threadId);
     //User Connection
     connection.query(
-      `UPDATE activity SET deleted_at = ? WHERE id = ? `,
+      `UPDATE activities SET deleted_at = ? WHERE id = ? `,
       [deleted_at, req.params.id],
       (err, rows) => {
         //When Done with the connection, release it
@@ -165,7 +165,7 @@ exports.updateActivity = function (req, res) {
         console.log("connected as ID " + connection.threadId);
         //User Connection
         connection.query(
-          `UPDATE activity SET title = ?, updated_at = ? WHERE id = ? `,
+          `UPDATE activities SET title = ?, updated_at = ? WHERE id = ? `,
           [title, updated_at, req.params.id],
           (err, rows) => {
             //When Done with the connection, release it
@@ -213,7 +213,7 @@ exports.getTodoItems = function (req, res) {
       if (err) throw err;
       console.log("connected as ID " + connection.threadId);
       //User Connection
-      connection.query(`SELECT * FROM todo WHERE id = ${id}`, (err, rows) => {
+      connection.query(`SELECT * FROM todos WHERE id = ${id}`, (err, rows) => {
         //When Done with the connection, release it
         connection.release();
 
@@ -241,7 +241,7 @@ exports.getTodoItems = function (req, res) {
       console.log("connected as ID " + connection.threadId);
       //User Connection
       connection.query(
-        `SELECT * FROM todo WHERE deleted_at IS NULL`,
+        `SELECT * FROM todos WHERE deleted_at IS NULL`,
         (err, rows) => {
           //When Done with the connection, release it
           connection.release();
@@ -271,7 +271,7 @@ exports.createTodoItems = function (req, res) {
     console.log("connected as ID " + connection.threadId);
     //User Connection
     connection.query(
-      `INSERT INTO todo SET activity_group_id =?, title = ?, is_active = ?, priority = ?, created_at = ?,updated_at = ?`,
+      `INSERT INTO todos SET activity_group_id =?, title = ?, is_active = ?, priority = ?, created_at = ?,updated_at = ?`,
       [
         activity_group_id,
         title,
@@ -288,7 +288,7 @@ exports.createTodoItems = function (req, res) {
 
         if (!err) {
           connection.query(
-            `SELECT * FROM todo WHERE activity_group_id = ?,title = ?,is_active = ?, priority = ?,deleted_at IS NULL`,
+            `SELECT * FROM todos WHERE activity_group_id = ?,title = ?,is_active = ?, priority = ?,deleted_at IS NULL`,
             [activity_group_id, title, , is_active, priority],
             (err, rows) => {
               //When Done with the connection, release it
@@ -327,7 +327,7 @@ exports.deleteTodoItems = function (req, res) {
     console.log("connected as ID " + connection.threadId);
     //User Connection
     connection.query(
-      `UPDATE todo SET deleted_at = ? WHERE id = ? `,
+      `UPDATE todos SET deleted_at = ? WHERE id = ? `,
       [deleted_at, req.params.id],
       (err, rows) => {
         //When Done with the connection, release it
@@ -365,7 +365,7 @@ exports.updateTodoItems = function (req, res) {
         console.log("connected as ID " + connection.threadId);
         //User Connection
         connection.query(
-          `UPDATE todo SET title = ?, updated_at = ? WHERE id = ? `,
+          `UPDATE todos SET title = ?, updated_at = ? WHERE id = ? `,
           [title, updated_at, req.params.id],
           (err, rows) => {
             //When Done with the connection, release it
