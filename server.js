@@ -12,7 +12,7 @@ app.use(cors());
 //middleWare
 app.use(morgan("dev"));
 //middleware untuk akses get asset folder public di server
-app.use(express.static("public"));
+// app.use(express.static("public"));
 
 app.use(express.json()); //terima dataa json
 app.use(express.urlencoded({ extended: true }));
@@ -22,5 +22,5 @@ server.listen(port, () => {
 });
 
 //impor router dari routes
-const Routes = require("./server/routes/routes");
-app.use(Routes);
+const routes = require("./server/routes/routes");
+app.use(routes);

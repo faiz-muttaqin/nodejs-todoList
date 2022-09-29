@@ -5,23 +5,25 @@ const pool = mysql.createPool({
   connectionLimit: 100,
   host: process.env.MYSQL_HOST,
   user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASSWORD,
+  password: "",
   database: process.env.MYSQL_DBNAME,
 });
 
 exports.getActivity = function (req, res) {
-  if (req.query.id) {
+  if (req.params.id) {
     //ambil data by Id
-    const id = req.query.id;
+    const id = req.params.id;
     pool.getConnection((err, connection) => {
       if (err) throw err;
       console.log("connected as ID " + connection.threadId);
       //User Connection
       connection.query(
-        `SELECT * FROM activity WHERE id = ${id}`,
+        `SELECT * FROM activity WHERE id = ?`,
+        [id],
         (err, rows) => {
           //When Done with the connection, release it
           connection.release();
+          console.log("connection");
 
           if (!err) {
             res.send({
@@ -48,7 +50,7 @@ exports.getActivity = function (req, res) {
       console.log("connected as ID " + connection.threadId);
       //User Connection
       connection.query(
-        `SELECT * FROM activity WHERE deleted_at = null`,
+        `SELECT * FROM activity WHERE deleted_at IS NULL`,
         (err, rows) => {
           //When Done with the connection, release it
           connection.release();
@@ -69,24 +71,39 @@ exports.getActivity = function (req, res) {
   }
 };
 exports.createActivity = function (req, res) {
-  const { email, title, createdAt } = req.body;
+  const { email, title } = req.body;
+  const d = new Date();
+  let created_at = d.toISOString();
+  let id = req.params.id;
   pool.getConnection((err, connection) => {
     if (err) throw err;
     console.log("connected as ID " + connection.threadId);
     //User Connection
     connection.query(
       `INSERT INTO activity SET email =?, title = ?, created_at = ?,updated_at = ?`,
-      [email, title, createdAt, createdAt],
-      (err, rows) => {
+      [email, title, created_at, created_at],
+      (err, rows1) => {
         //When Done with the connection, release it
         connection.release();
 
         if (!err) {
-          res.send({
-            status: "Success",
-            message: "Success",
-            data: rows,
-          }); // rows, removedUser
+          connection.query(
+            `SELECT * FROM activity WHERE email = ?,title = ?,deleted_at IS NULL`,
+            [email, title],
+            (err, rows) => {
+              //When Done with the connection, release it
+              connection.release();
+
+              if (!err) {
+                res.send({
+                  status: "Success",
+                  message: "Success",
+                  data: rows,
+                }); // rows, removedUser
+              } else {
+              }
+            }
+          );
         } else {
           console.log(err);
           res.send({
@@ -117,7 +134,11 @@ exports.deleteActivity = function (req, res) {
         connection.release();
 
         if (!err) {
-          res.send({ alert: "user sucesfully removed" });
+          res.send({
+            status: "Success",
+            message: "Success",
+            data: {},
+          });
         } else {
           res.send({
             status: "Not Found",
@@ -210,7 +231,7 @@ exports.getTodoItems = function (req, res) {
             data: {},
           });
         }
-        console.log("The data from user table: \n", rows);
+        console.log("The data from GETbyID user table: \n", rows);
       });
     });
   } else {
@@ -220,7 +241,7 @@ exports.getTodoItems = function (req, res) {
       console.log("connected as ID " + connection.threadId);
       //User Connection
       connection.query(
-        `SELECT * FROM todo WHERE deleted_at = null`,
+        `SELECT * FROM todo WHERE deleted_at IS NULL`,
         (err, rows) => {
           //When Done with the connection, release it
           connection.release();
@@ -234,12 +255,152 @@ exports.getTodoItems = function (req, res) {
           } else {
             console.log(err);
           }
-          console.log("The data from user table: \n", rows);
+          console.log("The data from GETAll user table: \n", rows);
         }
       );
     });
   }
 };
-exports.createTodoItems = function (req, res) {};
-exports.deleteTodoItems = function (req, res) {};
-exports.updateTodoItems = function (req, res) {};
+exports.createTodoItems = function (req, res) {
+  const { activity_group_id, title, is_active, priority } = req.body;
+  const d = new Date();
+  let created_at = d.toISOString();
+  let id = req.params.id;
+  pool.getConnection((err, connection) => {
+    if (err) throw err;
+    console.log("connected as ID " + connection.threadId);
+    //User Connection
+    connection.query(
+      `INSERT INTO todo SET activity_group_id =?, title = ?, is_active = ?, priority = ?, created_at = ?,updated_at = ?`,
+      [
+        activity_group_id,
+        title,
+        is_active,
+        priority,
+        created_at,
+        created_at,
+        is_active,
+        priority,
+      ],
+      (err, rows1) => {
+        //When Done with the connection, release it
+        connection.release();
+
+        if (!err) {
+          connection.query(
+            `SELECT * FROM todo WHERE activity_group_id = ?,title = ?,is_active = ?, priority = ?,deleted_at IS NULL`,
+            [activity_group_id, title, , is_active, priority],
+            (err, rows) => {
+              //When Done with the connection, release it
+              connection.release();
+
+              if (!err) {
+                res.send({
+                  status: "Success",
+                  message: "Success",
+                  data: rows,
+                }); // rows, removedUser
+              } else {
+              }
+              console.log("The data from CREATED user table: \n", rows);
+            }
+          );
+        } else {
+          console.log(err);
+          res.send({
+            status: "Bad Request",
+            message: "title cannot be null",
+            data: {},
+          });
+        }
+      }
+    );
+  });
+};
+exports.deleteTodoItems = function (req, res) {
+  const d = new Date();
+  let deleted_at = d.toISOString();
+  let id = req.params.id;
+  // Connect to DB
+  pool.getConnection((err, connection) => {
+    if (err) throw err;
+    console.log("connected as ID " + connection.threadId);
+    //User Connection
+    connection.query(
+      `UPDATE todo SET deleted_at = ? WHERE id = ? `,
+      [deleted_at, req.params.id],
+      (err, rows) => {
+        //When Done with the connection, release it
+        connection.release();
+
+        if (!err) {
+          res.send({
+            status: "Success",
+            message: "Success",
+            data: {},
+          });
+        } else {
+          res.send({
+            status: "Not Found",
+            message: `Activity with ID ${id} Not Found`,
+            data: {},
+          });
+          console.log(err);
+        }
+        console.log("The data from DELETED user table: \n", rows);
+      }
+    );
+  });
+};
+exports.updateTodoItems = function (req, res) {
+  const { title } = req.body;
+  const d = new Date();
+  let updated_at = d.toISOString();
+  let id = req.params.id;
+  if (id) {
+    if (title) {
+      // Connect to DB
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        console.log("connected as ID " + connection.threadId);
+        //User Connection
+        connection.query(
+          `UPDATE todo SET title = ?, updated_at = ? WHERE id = ? `,
+          [title, updated_at, req.params.id],
+          (err, rows) => {
+            //When Done with the connection, release it
+            connection.release();
+
+            if (!err) {
+              res.send({
+                status: "Success",
+                message: "Success",
+                data: rows,
+              });
+            } else {
+              res.send({
+                status: "Not Found",
+                message: `Activity with ID ${id} Not Found`,
+                data: {},
+              });
+              console.log(err);
+            }
+            console.log("The data from user table: \n", rows);
+          }
+        );
+      });
+    } else {
+      res.send({
+        status: "Bad Request",
+        message: "title cannot be null",
+        data: {},
+      });
+    }
+  } else {
+    res.send({
+      status: "Not Found",
+      message: `Activity with ID ${id} Not Found`,
+      data: {},
+    });
+  }
+};
